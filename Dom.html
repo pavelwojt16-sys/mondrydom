@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Dom">
+<meta name="theme-color" content="#f2f2f7">
+<title>Dom</title>
+<style>
+:root{--bg:#f2f2f7;--card:#fff;--text:#1d1d1f;--sub:#8e8e93;--line:rgba(60,60,67,.18);--blue:#0a84ff;--green:#30d158;--red:#ff453a;--bar:rgba(249,249,249,.82);--seg:rgba(118,118,128,.12);
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#000;--card:#1c1c1e;--text:#f5f5f7;--sub:#98989f;--line:rgba(84,84,88,.55);--bar:rgba(22,22,24,.82);--seg:rgba(118,118,128,.24)}}
+:root[data-theme="dark"]{--bg:#000;--card:#1c1c1e;--text:#f5f5f7;--sub:#98989f;--line:rgba(84,84,88,.55);--bar:rgba(22,22,24,.82);--seg:rgba(118,118,128,.24)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
+#app{max-width:480px;margin:0 auto;min-height:100vh;padding:18px 16px 110px}
+.tab{display:none;animation:in .25s ease}.tab.on{display:block}
+@keyframes in{from{opacity:0;transform:translateY(6px)}}
+h1{font-size:34px;font-weight:700;letter-spacing:-.02em;margin:8px 0 2px}
+.sub{color:var(--sub);font-size:15px}
+h3{font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--sub);font-weight:600;margin:24px 8px 8px}
+.card{background:var(--card);border-radius:20px;padding:16px}
+.hero{display:flex;flex-direction:column;align-items:center;gap:14px;padding:26px 16px;margin-top:16px}
+.shield{width:116px;height:116px;border-radius:50%;border:0;font-size:46px;color:#fff;background:var(--green);box-shadow:0 10px 30px rgba(48,209,88,.4);transition:.3s;cursor:pointer}
+.shield:active{transform:scale(.94)}
+.shield.off{background:#8e8e93;box-shadow:0 10px 30px rgba(142,142,147,.35)}
+.hero b{font-size:20px}
+.seg{display:flex;background:var(--seg);border-radius:10px;padding:2px;width:100%}
+.seg button{flex:1;border:0;background:none;color:var(--text);font:inherit;font-size:13px;font-weight:500;padding:8px 2px;border-radius:8px}
+.seg button.on{background:var(--card);box-shadow:0 2px 5px rgba(0,0,0,.18);font-weight:600}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{min-height:100px;display:flex;flex-direction:column;justify-content:space-between;border:0;text-align:left;font:inherit;color:var(--text);transition:.2s}
+.tile .i{font-size:26px}.tile .t{font-weight:600;font-size:15px}.tile .s{font-size:13px;color:var(--sub)}
+.tile.on{background:#fff;color:#1d1d1f;box-shadow:0 4px 14px rgba(0,0,0,.12)}.tile.on .s{color:#6e6e73}
+.tile:active{transform:scale(.96)}
+.row{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--line);font-size:16px}
+.row:last-child{border:0}
+.ic{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;font-size:17px;background:var(--seg);flex:none}
+.row small{display:block;color:var(--sub);font-size:13px}
+.grow{flex:1}
+.sw{width:51px;height:31px;border-radius:99px;background:rgba(120,120,128,.32);position:relative;transition:.25s;flex:none;border:0}
+.sw::after{content:"";position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.3);transition:.25s}
+.sw.on{background:var(--green)}.sw.on::after{transform:translateX(20px)}
+.cam{position:relative;border-radius:20px;overflow:hidden;aspect-ratio:16/10;margin-bottom:12px;cursor:pointer}
+.cam:active{transform:scale(.98)}
+.scene{position:absolute;inset:0;background-size:cover}
+.scene::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 1px,transparent 1px 3px)}
+.ov{position:absolute;left:12px;right:12px;display:flex;justify-content:space-between;align-items:center;color:#fff;font-size:12px;font-weight:600;z-index:2}
+.ov.t{top:12px}.ov.b{bottom:12px}
+.bd{padding:4px 9px;border-radius:99px;background:rgba(0,0,0,.38);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:inline-flex;gap:6px;align-items:center}
+.bd i{width:7px;height:7px;border-radius:50%;background:var(--red);animation:b 1.6s infinite}
+@keyframes b{50%{opacity:.25}}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stats .v{font-size:30px;font-weight:600;letter-spacing:-.02em}
+.scene canvas{position:absolute;inset:0;width:100%;height:100%}
+.flash{animation:fl 1.6s ease}@keyframes fl{from{background:rgba(10,132,255,.22)}}
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--bar);backdrop-filter:blur(24px) saturate(1.8);-webkit-backdrop-filter:blur(24px) saturate(1.8);border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px 0 calc(6px + env(safe-area-inset-bottom,0px));z-index:20}
+nav .in{display:flex;width:100%;max-width:480px}
+nav button{flex:1;border:0;background:none;color:var(--sub);font:inherit;font-size:10.5px;font-weight:500;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 0}
+nav button span{font-size:23px;filter:grayscale(1);opacity:.7}
+nav button.on{color:var(--blue)}nav button.on span{filter:none;opacity:1}
+.sheet{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:.3s}
+.sheet.show{opacity:1;pointer-events:auto}
+.panel{position:absolute;left:0;right:0;bottom:0;max-width:480px;margin:0 auto;background:var(--bg);border-radius:26px 26px 0 0;padding:10px 16px calc(22px + env(safe-area-inset-bottom,0px));transform:translateY(100%);transition:transform .35s cubic-bezier(.2,.9,.3,1)}
+.sheet.show .panel{transform:none}
+.grab{width:38px;height:5px;border-radius:9px;background:var(--sub);opacity:.5;margin:0 auto 12px}
+.view{position:relative;border-radius:18px;overflow:hidden;aspect-ratio:4/3}
+.pan{position:absolute;top:0;bottom:0;left:0;width:300%;transition:transform .1s linear}
+input[type=range]{width:100%;accent-color:var(--blue);margin:14px 0 4px}
+.btn{width:100%;border:0;border-radius:14px;background:var(--blue);color:#fff;font:inherit;font-weight:600;font-size:16px;padding:14px;margin-top:8px}
+.btn.g{background:var(--seg);color:var(--text)}
+.toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:rgba(40,40,42,.92);color:#fff;padding:10px 16px;border-radius:99px;font-size:14px;opacity:0;transition:.3s;z-index:60;pointer-events:none}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+<div id="app">
+
+<section class="tab on" id="t0">
+  <h1>Dom</h1><div class="sub" id="greet"></div>
+  <div class="card hero">
+    <button class="shield" id="shield">🛡️</button>
+    <b id="alarmT">Alarm włączony</b>
+    <div class="seg" id="modes"></div>
+    <div class="sub" id="modeI" style="text-align:center"></div>
+  </div>
+  <h3>Szybkie sterowanie</h3>
+  <div class="grid" id="devs"></div>
+  <h3>Dom teraz</h3>
+  <div class="stats">
+    <div class="card"><div class="sub">Temperatura</div><div class="v" id="temp">21,4°</div></div>
+    <div class="card"><div class="sub">Wilgotność</div><div class="v" id="hum">46%</div></div>
+    <div class="card"><div class="sub">Ostatni ruch</div><div class="v" id="lastm" style="font-size:20px;line-height:1.3">—</div></div>
+    <div class="card"><div class="sub">Temperatura (ostatnie minuty)</div><canvas id="spark" width="300" height="60" style="width:100%;height:46px;margin-top:6px"></canvas></div>
+  </div>
+</section>
+
+<section class="tab" id="t1">
+  <h1>Kamery</h1><div class="sub">3 kamery online</div>
+  <div id="cams" style="margin-top:16px"></div>
+</section>
+
+<section class="tab" id="t2">
+  <h1>Zdarzenia</h1><div class="sub">Ostatnie 24 godziny</div>
+  <div class="card" style="margin-top:16px;padding:4px 16px"><div id="evs"></div></div>
+</section>
+
+<section class="tab" id="t3">
+  <h1>Ustawienia</h1><div class="sub">Powiadomienia i dostęp</div>
+  <h3>Powiadomienia</h3>
+  <div class="card" style="padding:4px 16px" id="s1"></div>
+  <h3>Dostęp zdalny</h3>
+  <div class="card" style="padding:4px 16px" id="s2"></div>
+  <h3>Wygląd</h3>
+  <div class="card"><div class="seg" id="theme"><button data-t="auto" class="on">Auto</button><button data-t="light">Jasny</button><button data-t="dark">Ciemny</button></div></div>
+</section>
+</div>
+
+<nav><div class="in" id="nav">
+  <button class="on" data-i="0"><span>🏠</span>Dom</button>
+  <button data-i="1"><span>📹</span>Kamery</button>
+  <button data-i="2"><span>🔔</span>Zdarzenia</button>
+  <button data-i="3"><span>⚙️</span>Ustawienia</button>
+</div></nav>
+
+<div class="sheet" id="sheet"><div class="panel">
+  <div class="grab"></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+    <div><b id="sn" style="font-size:19px"></b><div class="sub" id="sd"></div></div>
+    <span class="bd" style="background:rgba(120,120,128,.18);color:var(--text)"><i></i>LIVE</span>
+  </div>
+  <div class="view"><canvas id="bigcv" style="position:absolute;inset:0;width:100%;height:100%"></canvas><div class="ov t" style="top:10px"><span></span><span class="bd ts"></span></div></div>
+  <input type="range" id="rng" min="0" max="100" value="50">
+  <div class="sub" style="text-align:center">Przesuń, aby obrócić widok</div>
+  <button class="btn" id="snap">Zrób zdjęcie</button>
+  <button class="btn g" id="cls">Zamknij</button>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+var $=function(i){return document.getElementById(i)};
+var G=["radial-gradient(60% 90% at 20% 10%,#4a6fa5,#1c2a3f),linear-gradient(90deg,#1c2a3f,#355c8a,#1c2a3f)","radial-gradient(60% 90% at 80% 10%,#6b5b95,#241d38),linear-gradient(90deg,#241d38,#5b4a85,#241d38)","radial-gradient(60% 90% at 50% 0%,#3f8a6b,#12281f),linear-gradient(90deg,#12281f,#2f7a5b,#12281f)"];
+var cams=[{n:"Narożnik domu",d:"Widok 270°"},{n:"Wejście",d:"Drzwi główne"},{n:"Podwórko",d:"Tył domu"}];
+var devs=[{i:"💡",n:"Światło zewn.",on:true},{i:"🔒",n:"Zamek drzwi",on:true,a:"Zamknięty",b:"Otwarty"},{i:"🚪",n:"Brama",on:false,a:"Zamknięta",b:"Otwarta",inv:true},{i:"🔌",n:"Gniazdo salon",on:false}];
+var modes={"W domu":"Kamery nagrywają, czujniki wnętrza wyłączone.","Poza domem":"Pełna ochrona. Ruch wyśle powiadomienie.","Noc":"Aktywne czujniki zewnętrzne."};
+var cur="W domu",armed=true;
+var evs=[["🚶","Wykryto ruch","Wejście · 14:32"],["📦","Wykryto paczkę","Wejście · 11:08"],["🔒","Zamek zamknięty","Drzwi główne · 08:15"],["🌙","Tryb Noc włączony","Wczoraj · 22:40"],["🐈","Wykryto zwierzę","Podwórko · wczoraj 19:12"]];
+var s1=[["Ruch na kamerach",1],["Paczka przy drzwiach",1],["Alarm i czujniki",1],["Cisza nocna 22:00–07:00",0]];
+var s2=[["Dostęp spoza domu",1],["Połączenie szyfrowane",1]];
+function toast(t){var e=$("toast");e.textContent=t;e.classList.add("show");setTimeout(function(){e.classList.remove("show")},1800)}
+function buzz(){try{navigator.vibrate&&navigator.vibrate(10)}catch(e){}}
+function sw(arr,id){
+  $(id).innerHTML=arr.map(function(r,i){return '<div class="row"><div class="grow">'+r[0]+'</div><button class="sw'+(r[1]?" on":"")+'" data-i="'+i+'" aria-label="'+r[0]+'"></button></div>'}).join("");
+  $(id).querySelectorAll(".sw").forEach(function(b){b.onclick=function(){arr[b.dataset.i][1]^=1;b.classList.toggle("on");buzz()}});
+}
+function drawDevs(){
+  $("devs").innerHTML=devs.map(function(d,i){
+    var s=d.a?(d.on?d.a:d.b):(d.on?"Włączone":"Wyłączone"),lit=d.inv?!d.on:d.on;
+    return '<button class="card tile'+(lit?" on":"")+'" data-i="'+i+'"><div class="i">'+d.i+'</div><div><div class="t">'+d.n+'</div><div class="s">'+s+'</div></div></button>';
+  }).join("");
+  document.querySelectorAll(".tile").forEach(function(b){b.onclick=function(){var d=devs[b.dataset.i];d.on=!d.on;buzz();drawDevs()}});
+}
+function drawMode(){
+  $("modes").innerHTML=Object.keys(modes).map(function(m){return '<button data-m="'+m+'" class="'+(m===cur?"on":"")+'">'+m+'</button>'}).join("");
+  $("modes").querySelectorAll("button").forEach(function(b){b.onclick=function(){cur=b.dataset.m;armed=true;buzz();drawMode()}});
+  $("shield").classList.toggle("off",!armed);
+  $("alarmT").textContent=armed?"Alarm włączony":"Alarm wyłączony";
+  $("modeI").textContent=armed?modes[cur]:"Dotknij tarczy, aby włączyć alarm.";
+  $("modes").style.opacity=armed?1:.45;
+}
+$("shield").onclick=function(){armed=!armed;buzz();drawMode();toast(armed?"Alarm włączony":"Alarm wyłączony")};
+$("cams").innerHTML=cams.map(function(c,i){return '<div class="cam" data-i="'+i+'"><div class="scene"><canvas class="cv" data-i="'+i+'"></canvas></div><div class="ov t"><span class="bd"><i></i>LIVE</span><span class="bd ts"></span></div><div class="ov b"><b style="font-size:15px">'+c.n+'</b><span class="bd">'+c.d+'</span></div></div>'}).join("");
+document.querySelectorAll(".cam").forEach(function(e){e.onclick=function(){
+  var i=e.dataset.i;$("sn").textContent=cams[i].n;$("sd").textContent=cams[i].d;
+  openCam=+i;$("rng").value=50;$("sheet").classList.add("show")}});
+function mv(){}
+$("rng").oninput=mv;
+$("cls").onclick=function(){$("sheet").classList.remove("show")};
+$("sheet").onclick=function(e){if(e.target===this)this.classList.remove("show")};
+$("snap").onclick=function(){buzz();toast("Zapisano zdjęcie")};
+function drawEvs(){$("evs").innerHTML=evs.map(function(e,k){return '<div class="row'+(e[3]?' flash':'')+'"><div class="ic">'+e[0]+'</div><div>'+e[1]+'<small>'+e[2]+'</small></div></div>'}).join("")}
+function addEv(ic,tx,sb){evs.unshift([ic,tx,sb,1]);if(evs.length>30)evs.pop();drawEvs()}
+$("nav").querySelectorAll("button").forEach(function(b){b.onclick=function(){
+  $("nav").querySelectorAll("button").forEach(function(x){x.classList.toggle("on",x===b)});
+  document.querySelectorAll(".tab").forEach(function(t,i){t.classList.toggle("on",i==b.dataset.i)});
+  window.scrollTo(0,0);buzz()}});
+$("theme").querySelectorAll("button").forEach(function(b){b.onclick=function(){
+  $("theme").querySelectorAll("button").forEach(function(x){x.classList.toggle("on",x===b)});
+  var r=document.documentElement;if(b.dataset.t==="auto")r.removeAttribute("data-theme");else r.setAttribute("data-theme",b.dataset.t)}});
+function tick(){
+  var d=new Date(),h=d.getHours();
+  $("greet").textContent=(h<5||h>=22?"Dobranoc":h<12?"Dzień dobry":h<18?"Cześć":"Dobry wieczór")+" · "+d.toLocaleDateString("pl-PL",{weekday:"long",day:"numeric",month:"long"});
+  var t=("0"+h).slice(-2)+":"+("0"+d.getMinutes()).slice(-2)+":"+("0"+d.getSeconds()).slice(-2);
+  document.querySelectorAll(".ts").forEach(function(e){e.textContent=t});
+}
+/* ===== WARSTWA DANYCH (symulacja) =====
+   Docelowo: Source = fetch/WebSocket do Home Assistant (czujniki, zdarzenia),
+   a obraz kamer = strumień WebRTC/HLS z go2rtc zamiast render() na canvas. */
+var openCam=-1,prev=[-1,-1,-1];
+var Source={t:21.4,h:46,hist:[],start:function(){var s=this,k;
+ for(k=0;k<30;k++){s.t+=(Math.random()-.5)*.15;s.hist.push(s.t)}
+ setInterval(function(){
+  s.t=Math.max(19.5,Math.min(23.5,s.t+(Math.random()-.5)*.2));
+  s.h=Math.max(38,Math.min(58,s.h+(Math.random()-.5)*1.2));
+  s.hist.push(s.t);if(s.hist.length>30)s.hist.shift();
+  $("temp").textContent=s.t.toFixed(1).replace(".",",")+"°";
+  $("hum").textContent=Math.round(s.h)+"%";spark()},2000)}};
+function spark(){var cv=$("spark"),h=Source.hist;if(!cv||!cv.clientWidth)return;
+ var w=cv.clientWidth*2,H=cv.clientHeight*2;cv.width=w;cv.height=H;
+ var c=cv.getContext("2d"),mn=Math.min.apply(null,h),mx=Math.max.apply(null,h),r=(mx-mn)||1;
+ c.strokeStyle="#0a84ff";c.lineWidth=3;c.lineJoin="round";c.beginPath();
+ h.forEach(function(v,k){var x=k/(h.length-1)*w,y=H-4-(v-mn)/r*(H-8);k?c.lineTo(x,y):c.moveTo(x,y)});c.stroke()}
+function actor(i,t){var P=[14,17,20][i],f=((t+[0,5,9][i])%P)/P;return f<.45?f/.45:-1}
+function hhmm(){var d=new Date();return ("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2)}
+function motion(i){var m=hhmm();addEv("🚶","Wykryto ruch",cams[i].n+" · "+m);
+ $("lastm").textContent=cams[i].n+" · "+m;if(s1[0][1])toast("Ruch: "+cams[i].n)}
+function render(cv,i,t,x0,x1){
+ var c=cv.getContext("2d"),w=cv.width,h=cv.height,sx=w/(x1-x0);
+ function X(x){return (x-x0)*sx}
+ var pal=[["#2b4468","#0f1826"],["#3f3466","#150f26"],["#2a5e48","#0b1a14"]][i];
+ var g=c.createLinearGradient(0,0,0,h);g.addColorStop(0,pal[0]);g.addColorStop(1,pal[1]);
+ c.fillStyle=g;c.fillRect(0,0,w,h);
+ c.fillStyle="rgba(0,0,0,.28)";c.fillRect(0,h*.62,w,h*.38);
+ c.fillStyle="rgba(255,255,255,.07)";
+ for(var k=0;k<6;k++){c.fillRect(X(k*55+12+i*9),h*.28,30*sx,h*.34)}
+ c.strokeStyle="rgba(255,255,255,.06)";c.lineWidth=1;
+ for(k=0;k<8;k++){c.beginPath();c.moveTo(X(k*40),h*.62);c.lineTo(X(k*40+(k-4)*18),h);c.stroke()}
+ var p=actor(i,t);
+ if(p>=0){var ax=X(20+p*260),s=h*.2,gy=h*.82;
+  c.fillStyle="rgba(235,235,245,.88)";
+  c.beginPath();c.arc(ax,gy-s*1.05,s*.17,0,7);c.fill();
+  c.beginPath();c.roundRect?c.roundRect(ax-s*.2,gy-s*.85,s*.4,s*.85,s*.12):c.rect(ax-s*.2,gy-s*.85,s*.4,s*.85);c.fill();
+  c.strokeStyle="#30d158";c.lineWidth=2;c.strokeRect(ax-s*.38,gy-s*1.3,s*.76,s*1.35);
+  c.fillStyle="#30d158";c.font="600 "+Math.round(h*.06)+"px -apple-system,sans-serif";c.fillText("Ruch "+Math.round(70+p*25)+"%",ax-s*.38,gy-s*1.36)}
+ c.fillStyle="rgba(255,255,255,.75)";c.font="600 "+Math.round(h*.055)+"px -apple-system,sans-serif";
+ c.fillText(cams[i].n,h*.05,h*.93)}
+function fit(cv){var d=Math.min(window.devicePixelRatio||1,2),w=Math.round(cv.clientWidth*d),h=Math.round(cv.clientHeight*d);
+ if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h}return w>0}
+function frame(ms){var t=ms/1000,i;
+ for(i=0;i<3;i++){var p=actor(i,t);if(p>=0&&prev[i]<0)motion(i);prev[i]=p}
+ document.querySelectorAll(".cv").forEach(function(cv){if(fit(cv)){var j=+cv.dataset.i;j?render(cv,j,t,75,225):render(cv,0,t,0,300)}});
+ if($("sheet").classList.contains("show")&&openCam>=0){var b=$("bigcv");if(fit(b)){var o=$("rng").value*2;render(b,openCam,t,o,o+100)}}
+ requestAnimationFrame(frame)}
+sw(s1,"s1");sw(s2,"s2");drawDevs();drawMode();drawEvs();tick();setInterval(tick,1000);
+Source.start();spark();requestAnimationFrame(frame);
+</script>
+</body>
+</html>
